@@ -1,0 +1,79 @@
+.CustomPage {
+    // TODO style the element
+}
+
+.tdimage {
+    width: 118px;
+}
+
+.tdheader {
+    text-align: center;
+}
+
+.tddata {
+    text-align: center;
+}
+
+.listcategory {
+    text-align: center;
+    font-weight: 500;
+}
+
+.header {
+    margin-block-end: 10px;
+    background-color: #f8f9fa;
+}
+
+.headertext {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #ced4da;
+    background-color: #fff;
+    height: 48px;
+    border-radius: .375rem;
+    font-weight: 500;
+    line-height: 4.5;
+}
+
+.moreinfo {
+    background-color: darkgreen;
+    border-radius: .375rem;
+    color: white;
+    height: 31px;
+    width: 155px;
+    margin-inline-end: 20px;
+    margin-block-start: 6px;
+    padding-inline-start: 10px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: darkgreen;
+}
+
+.card-innerbody {
+    display: flex;
+    margin-block-start: 5px;
+}
+
+.label1 {
+    overflow-wrap: break-word;
+    padding: 5px;
+    white-space: nowrap;
+}
+
+.input-detail {
+    display: flex;
+    line-height: 15px;
+}
+
+p {
+    line-break: anywhere;
+    line-height: 17px;
+    margin: 5px;
+}
+
+h2 {
+    color: #fff;
+}
