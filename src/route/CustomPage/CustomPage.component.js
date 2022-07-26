@@ -104,7 +104,7 @@ export class CustomPageComponent extends PureComponent {
             </th>
             <th>
               <div className="tdheader">
-                <h4>Order</h4>
+                <h4>order</h4>
               </div>
             </th>
           </tr>
