@@ -1,3 +1,8 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable react/forbid-elements */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/jsx-no-useless-fragment */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -19,10 +24,15 @@ import {
     Container,
     Form,
     Image,
+    Modal,
     Row,
     Table
 } from 'react-bootstrap';
 import { AiOutlineClose } from 'react-icons/ai';
+
+import Link from 'Component/Link';
+import { CART_URL } from 'Route/CartPage/CartPage.config';
+import { scrollToTop } from 'Util/Browser';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './CustomPage.style';
@@ -32,27 +42,48 @@ import './CustomPage.style';
 export class CustomPageComponent extends PureComponent {
   state = {
       count: 0,
-      product: [],
-      showCart: false
+      product: JSON.parse(localStorage.getItem('productData')),
+      showCart: false,
+      showModal: false,
+      filterdata: [],
+      filtershow: false,
+      availableData: [],
+      page: 1,
+      perPage: 7
   };
 
   async componentDidMount() {
-      const localStorageData = JSON.parse(localStorage.getItem('productData'));
+      const { filtershow, product } = this.state;
       try {
           const response = await fetch(
               'https://60ff90a3bca46600171cf36d.mockapi.io/api/products'
           );
           const data = await response.json();
-          // this.setState({ data });
           const ProductData = [];
-          if (localStorageData === null) {
-              const result = ProductData.concat(localStorageData || [], data);
+          if (product === null) {
+              const result = ProductData.concat(product || [], data);
               localStorage.setItem('productData', JSON.stringify(result));
           }
+          this.setState({
+              availableData: filtershow ? this.fliterCategoryData : product
+          });
       } catch (err) {
           console.log(err);
       }
   }
+
+  paginatePage = (number) => {
+      console.log('__ak', number);
+      this.setState({ page: number });
+  };
+
+  handleClick = () => {
+      this.setState({ showModal: true });
+  };
+
+  handleClose = () => {
+      this.setState({ showModal: false });
+  };
 
   handleDecrement = () => {
       const { count } = this.state;
@@ -65,9 +96,9 @@ export class CustomPageComponent extends PureComponent {
   };
 
   showSingleProduct = (slug) => {
-      const productData = JSON.parse(localStorage.getItem('productData'));
+      const { product } = this.state;
       this.setState({ showCart: true });
-      const singleProductData = productData.filter((elem) => elem.slug === slug);
+      const singleProductData = product.filter((elem) => elem.slug === slug);
       this.setState({ singleProduct: singleProductData });
   };
 
@@ -75,9 +106,20 @@ export class CustomPageComponent extends PureComponent {
       this.setState({ showCart: false });
   };
 
+  fliterCategoryData = (category) => {
+      const { product } = this.state;
+      const filterdatas = product.filter((elem) => elem.category === category);
+
+      this.setState({ availableData: filterdatas });
+  };
+
   renderTable() {
-      const { count } = this.state;
-      const localStorageData = JSON.parse(localStorage.getItem('productData'));
+      const {
+          count, availableData, page, perPage
+      } = this.state;
+      const indexofLastpost = page * perPage;
+      const indexofFirstpost = indexofLastpost - perPage;
+      const items = availableData.slice(indexofFirstpost, indexofLastpost);
       return (
       <Table striped bordered hover>
         <thead>
@@ -110,7 +152,7 @@ export class CustomPageComponent extends PureComponent {
           </tr>
         </thead>
         <tbody>
-          { localStorageData.map((newdata) => (
+          { items.map((newdata) => (
             <tr
               key={ newdata.id }
               style={ { cursor: 'pointer' } }
@@ -144,14 +186,14 @@ export class CustomPageComponent extends PureComponent {
                   <h3>
                     <Button
                       variant="outline-secondary"
-                      onClick={ this.handleDecrement }
+                      onClick={ () => this.handleDecrement(newdata.id) }
                     >
                       -
                     </Button>
                     <Button variant="outline-secondary">{ count }</Button>
                     <Button
                       variant="outline-secondary"
-                      onClick={ this.handleIncrement }
+                      onClick={ () => this.handleIncrement(newdata.id) }
                     >
                       +
                     </Button>
@@ -191,13 +233,40 @@ export class CustomPageComponent extends PureComponent {
         </div>
 
         <p style={ { lineHeight: '2' } }>
-          <div className="moreinfo">
-more information
+          <button className="moreinfo" onClick={ this.handleClick }>
+            more information
 { ' ' }
 { '>>' }
-          </div>
+          </button>
         </p>
       </div>
+      );
+  }
+
+  renderMoreinfo() {
+      const { showModal } = this.state;
+      return (
+      <Modal show={ showModal } onHide={ this.handleClose }>
+        <Modal.Header closeButton>
+          <Modal.Title>web-site logo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Image
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5C220sjAtQScUt_IEppey_CL0AYLUFzcsAw&usqp=CAU"
+            style={ { height: '100px', objectFit: 'contain' } }
+          />
+          <div>
+            <h4>Product base site...</h4>
+            <h4>all products are good quality and resonable price...</h4>
+            <h4>Discount on festival...</h4>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={ this.handleClose }>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
       );
   }
 
@@ -271,7 +340,9 @@ $
                   } }
                 >
                   <h3 style={ { lineHeight: '3' } }>
-                    <b style={ { color: '#fff' } }> Produce to Payment</b>
+                    <Link to={ CART_URL } onClick={ scrollToTop }>
+                      <b style={ { color: '#fff' } }> Produce to Payment</b>
+                    </Link>
                   </h3>
                 </div>
                 <div
@@ -284,7 +355,7 @@ $
                   } }
                 >
                   <h3 style={ { lineHeight: '3' } }>
-                    <b>Continue the shopping</b>
+                    <b>Add to cart</b>
                   </h3>
                 </div>
                 </>
@@ -298,9 +369,9 @@ $
   }
 
   renderFilterCategory() {
-      // const { data } = this.state;
-      const localStorageData = JSON.parse(localStorage.getItem('productData'));
-      const result = localStorageData.reduce((finalresult, current) => {
+      const { product } = this.state;
+      // const localStorageData = JSON.parse(localStorage.getItem('productData'));
+      const result = product.reduce((finalresult, current) => {
           const obj = finalresult.find(
               (item) => item.category === current.category
           );
@@ -313,23 +384,66 @@ $
       }, []);
 
       return (
-      <Accordion>
-        <Accordion.Item>
-          { result.map((newresult) => (
-            <div className="listcategory">
-              <Accordion.Header style={ { backgroundColor: '#d8e6ed' } }>
+      <Accordion defaultActiveKey="0">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>Category</Accordion.Header>
+          <Accordion.Body>
+            { result.map((newresult) => (
+              // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+              <div
+                onClick={ () => this.fliterCategoryData(newresult.category) }
+                style={ { cursor: 'pointer' } }
+              >
                 <h5>{ newresult.category }</h5>
-              </Accordion.Header>
-            </div>
-          )) }
+                <hr />
+              </div>
+            )) }
+          </Accordion.Body>
         </Accordion.Item>
       </Accordion>
+      );
+  }
+
+  renderPegination() {
+      const { page, product, perPage } = this.state;
+      const totalpost = product.length;
+      const pageNumbers = [];
+
+      // eslint-disable-next-line fp/no-let
+      for (let i = 1; i <= Math.ceil(totalpost / perPage); i++) {
+          pageNumbers.push(i);
+      }
+
+      return (
+          <>
+        <nav aria-label="Page navigation example">
+          <ul className="pagination justify-content-center">
+            { pageNumbers.map((number) => (
+              <li
+                key={ number }
+                className={ `page-item ${number === page ? 'active' : ''}` }
+              >
+                <a
+                  onClick={ () => {
+                      this.paginatePage(number);
+                  } }
+                  className="page-link"
+                  style={ { cursor: 'pointer' } }
+                >
+                  { number }
+                </a>
+              </li>
+            )) }
+          </ul>
+        </nav>
+          </>
       );
   }
 
   render() {
       return (
       <div>
+        { this.renderMoreinfo() }
         <div className="header">
           <Row>
             <Col className="col-md-2">{ this.renderSearch() }</Col>
@@ -341,6 +455,7 @@ $
           <Col className="col-md-7">{ this.renderTable() }</Col>
           <Col className="col-md-3">{ this.renderCart() }</Col>
         </Row>
+        <Row>{ this.renderPegination() }</Row>
       </div>
       );
   }

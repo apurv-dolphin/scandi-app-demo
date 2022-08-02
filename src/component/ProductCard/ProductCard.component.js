@@ -40,7 +40,7 @@ export class ProductCardComponent extends SourceProductCard {
         const price = super.renderPrice();
         const actualPrice = price?.props?.children?.props?.price?.price?.finalPrice?.value || 0;
         const finalPrice = Math.floor(
-            actualPrice - (actualPrice * 10) / 100
+            actualPrice - (actualPrice * 20) / 100
         ).toFixed(2);
 
         return (
